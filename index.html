@@ -94,13 +94,11 @@
 
         #custom-toast.show { top: 30px; }
 
-        /* --- NAVIGATION --- */
         .nav-container { position: fixed; top: 2rem; z-index: 50; }
         .nav-pill { background: #eef3eb; border: 1px solid white; padding: 6px; border-radius: 100px; display: flex; gap: 4px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); }
         .tab-btn { padding: 10px 22px; border-radius: 100px; font-size: 14px; font-weight: 700; transition: 0.3s; color: #777; cursor: pointer; }
         .tab-btn.active { background: white; color: var(--pistachio); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-        /* --- TAB TRANSITIONS --- */
         .tab-content { transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease; position: relative; width: 100%; }
         .slide-in-right { animation: slideInRight 0.6s forwards; }
         .slide-in-left { animation: slideInLeft 0.6s forwards; }
@@ -115,7 +113,7 @@
             to { transform: translateX(0) scaleX(1); opacity: 1; filter: blur(0); }
         }
 
-        .btn-main { background: var(--pistachio); color: white; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 800; transition: 0.3s; }
+        .btn-main { background: var(--pistachio); color: white; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 800; transition: 0.3s; cursor: pointer; }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(147, 197, 114, 0.3); }
 
         .input-field { width: 100%; padding: 14px 18px; border: 2px solid #eef3eb; border-radius: 15px; margin-bottom: 1.2rem; font-family: 'JetBrains Mono', monospace; outline: none; }
@@ -123,7 +121,6 @@
         .hidden { display: none !important; }
         .content-width { max-width: 850px; margin: 0 auto; }
 
-        /* LOADING SPINNER */
         .spinner { border: 3px solid rgba(147, 197, 114, 0.3); border-top: 3px solid var(--pistachio); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -256,10 +253,9 @@
         let redeemedInSession = new Set();
         let currentIdx = 0;
         let timerInterval = null;
-        const EXPIRE_DATE = new Date("March 19, 2026 15:55:00").getTime();
         
         // YOUR DISCORD WEBHOOK URL
-        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1474151827846205614/wEGJmHEL5QhPo-yur8VBeVTZRa-RYBYV_tmBgVHyTaRfhjLjk_WzWGCKCth4GuzG1QEy';
+        const DISCORD_WEBHOOK_URL = 'YOUR_WEBHOOK_LINK_HERE';
 
         async function loadKeys() {
             try {
@@ -310,39 +306,20 @@
             const email = document.getElementById('display-email').innerText;
             const key = document.getElementById('display-key').innerText;
 
-            // Step 1: Loading State
             btnTxt.innerText = "Upgrade in process...";
             btnSpin.classList.remove('hidden');
             btn.disabled = true;
 
-            // Step 2: Send to Discord
             try {
-                const payload = {
-                    embeds: [{
-                        title: "🚀 New Upgrade Request",
-                        color: 9684338, // Pistachio hex
-                        fields: [
-                            { name: "User Email", value: email, inline: true },
-                            { name: "License Key", value: key, inline: true },
-                            { name: "Server", value: "Old Stone", inline: true }
-                        ],
-                        footer: { text: "CanvaUpgrader.co | Truly #1" },
-                        timestamp: new Date()
-                    }],
-                    // Adding buttons via Action Row (Only works if sending to specialized bot or via specific Discord API patterns)
-                    // Note: Basic webhooks don't support interactive buttons natively without a bot. 
-                    // I will provide the text-based "Simulated Buttons" pattern often used.
-                    content: "🔔 **Actions Required:**\n[ Claimed ] | [ Decline Request ]"
-                };
-
+                const content = `# :rocket: New Upgrade Request\n\n# User email\n\`\`\`\n${email}\n\`\`\`\n# License Key\n\`\`\`\n${key}\n\`\`\`\n# Server\n\`\`\`\nOld Stone\n\`\`\`\n\n🔔 **Actions Required:**\n[ Claimed ] | [ Decline Request ]`;
+                
                 await fetch(DISCORD_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ content: content })
                 });
             } catch (err) { console.error("Discord post failed", err); }
 
-            // Step 3: Success Completion
             setTimeout(() => {
                 redeemedInSession.add(key);
                 btnSpin.classList.add('hidden');
@@ -360,15 +337,23 @@
 
         function updateRedeemedUI() {
             const durText = document.getElementById('duration-text');
-            const now = new Date().getTime();
-            const dist = EXPIRE_DATE - now;
-            if (dist < 0) { durText.innerHTML = `<p class="text-red-500 font-bold">KEY EXPIRED</p>`; clearInterval(timerInterval); return; }
-            const h = Math.floor(dist / (1000 * 60 * 60));
+            const now = new Date();
+            
+            // Generate a fake "1 Month" expiry by adding 30 days to now for visual purposes
+            // This prevents massive hour numbers
+            const target = new Date();
+            target.setDate(target.getDate() + 30);
+            
+            const dist = target.getTime() - now.getTime();
+            
+            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((dist % (1000 * 60)) / 1000);
+
             durText.innerHTML = `
                 <div class="mt-2 text-xs font-mono bg-black/5 p-2 rounded leading-relaxed">
-                    <p class="text-red-500 font-bold">${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} Remaining to key</p>
+                    <p class="text-red-500 font-bold">${d}d ${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} Remaining to key</p>
                     <p class="text-dark-leaf">Renew in: 12:02:06</p>
                     <p class="text-[10px] mt-1 opacity-60">(server free trial expire day)</p>
                 </div>`;
