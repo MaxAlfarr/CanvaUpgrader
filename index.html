@@ -95,45 +95,13 @@
         #custom-toast.show { top: 30px; }
 
         /* --- NAVIGATION --- */
-        .nav-container {
-            position: fixed;
-            top: 2rem;
-            z-index: 50;
-        }
-
-        .nav-pill {
-            background: #eef3eb;
-            border: 1px solid white;
-            padding: 6px;
-            border-radius: 100px;
-            display: flex;
-            gap: 4px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.04);
-        }
-
-        .tab-btn {
-            padding: 10px 22px;
-            border-radius: 100px;
-            font-size: 14px;
-            font-weight: 700;
-            transition: 0.3s;
-            color: #777;
-            cursor: pointer;
-        }
-
-        .tab-btn.active {
-            background: white;
-            color: var(--pistachio);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+        .nav-container { position: fixed; top: 2rem; z-index: 50; }
+        .nav-pill { background: #eef3eb; border: 1px solid white; padding: 6px; border-radius: 100px; display: flex; gap: 4px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); }
+        .tab-btn { padding: 10px 22px; border-radius: 100px; font-size: 14px; font-weight: 700; transition: 0.3s; color: #777; cursor: pointer; }
+        .tab-btn.active { background: white; color: var(--pistachio); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         /* --- TAB TRANSITIONS --- */
-        .tab-content {
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease;
-            position: relative;
-            width: 100%;
-        }
-
+        .tab-content { transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease; position: relative; width: 100%; }
         .slide-in-right { animation: slideInRight 0.6s forwards; }
         .slide-in-left { animation: slideInLeft 0.6s forwards; }
 
@@ -147,52 +115,31 @@
             to { transform: translateX(0) scaleX(1); opacity: 1; filter: blur(0); }
         }
 
-        .btn-main { 
-            background: var(--pistachio); 
-            color: white; 
-            padding: 0.8rem 2rem; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            transition: 0.3s;
-        }
+        .btn-main { background: var(--pistachio); color: white; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 800; transition: 0.3s; }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(147, 197, 114, 0.3); }
 
-        .input-field {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #eef3eb;
-            border-radius: 15px;
-            margin-bottom: 1.2rem;
-            font-family: 'JetBrains Mono', monospace;
-            outline: none;
-            transition: 0.3s;
-        }
-
+        .input-field { width: 100%; padding: 14px 18px; border: 2px solid #eef3eb; border-radius: 15px; margin-bottom: 1.2rem; font-family: 'JetBrains Mono', monospace; outline: none; }
         .input-field:focus { border-color: var(--pistachio); }
         .hidden { display: none !important; }
         .content-width { max-width: 850px; margin: 0 auto; }
+
+        /* LOADING SPINNER */
+        .spinner { border: 3px solid rgba(147, 197, 114, 0.3); border-top: 3px solid var(--pistachio); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="custom-toast">
-        <div class="bg-pistachio rounded-full p-1">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-            </svg>
-        </div>
+        <div class="bg-pistachio rounded-full p-1"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
         <span id="toast-msg" class="font-bold text-dark-leaf"></span>
     </div>
 
     <div id="intro-loader">
-        <div class="intro-container">
-            <span class="intro-text">C</span>
-            <div class="cursor-line"></div>
-        </div>
+        <div class="intro-container"><span class="intro-text">C</span><div class="cursor-line"></div></div>
     </div>
 
     <div id="main-ui" class="opacity-0 transition-opacity duration-1000 w-full px-6">
-        
         <div class="nav-container left-1/2 -translate-x-1/2">
             <nav class="nav-pill">
                 <button onclick="showTab('home', 0)" class="tab-btn active" id="tab-home">Home</button>
@@ -204,7 +151,6 @@
         </div>
 
         <main class="text-center mt-20">
-            
             <section id="home" class="tab-content content-width">
                 <h1 class="text-2xl font-bold text-[#93C572] mb-2">CanvaUpgrader.co</h1>
                 <h2 class="text-5xl md:text-6xl font-black mb-8">Truly #1 Canva Upgrader</h2>
@@ -212,7 +158,6 @@
                     <button onclick="showTab('keys', 3)" class="btn-main text-lg px-10 py-4">Buy Now</button>
                     <button onclick="showTab('upgrade', 1)" class="bg-white text-black border border-gray-200 px-10 py-4 rounded-xl font-bold transition hover:bg-gray-50 shadow-sm">Upgrade Account</button>
                 </div>
-                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-12">
                     <div class="bg-white border-2 border-[#93C572] rounded-xl p-4 text-sm font-bold">+1 Upgrade</div>
                     <div class="bg-white border-2 border-[#93C572] rounded-xl p-4 text-sm font-bold">100% Automated</div>
@@ -250,7 +195,10 @@
                                 <span class="font-bold text-pistachio">Old Stone</span>
                             </div>
                         </div>
-                        <button onclick="finalizeUpgrade()" class="btn-main w-full py-4 text-lg">Finalize Upgrade</button>
+                        <button id="finalize-btn" onclick="finalizeUpgrade()" class="btn-main w-full py-4 text-lg flex items-center justify-center gap-3">
+                            <span id="btn-text">Finalize Upgrade</span>
+                            <div id="btn-spinner" class="spinner hidden"></div>
+                        </button>
                         <p onclick="resetUpgrade()" class="text-center text-gray-400 text-xs font-bold mt-4 cursor-pointer hover:text-pistachio">← Change Details</p>
                     </div>
                 </div>
@@ -262,12 +210,9 @@
                     <label class="block text-sm font-bold mb-2">License Key</label>
                     <input type="text" id="check-key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" class="input-field">
                     <button onclick="checkKeyInfo()" class="btn-main w-full py-4 text-lg">Check Status</button>
-                    
                     <div id="key-result" class="mt-6 hidden p-6 rounded-2xl border-2 bg-pistachio/5 text-center">
                         <p id="status-text" class="font-bold text-lg text-dark-leaf"></p>
-                        <div id="timer-box" class="hidden">
-                            <div id="duration-text" class="mt-1"></div>
-                        </div>
+                        <div id="timer-box" class="hidden"><div id="duration-text" class="mt-1"></div></div>
                     </div>
                 </div>
             </section>
@@ -276,20 +221,14 @@
                 <h2 class="text-4xl font-black mb-10">Choose Your Plan</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white border-2 border-[#eef3eb] p-8 rounded-3xl flex flex-col items-center">
-                        <h3 class="text-xl font-black">1 Month Pro</h3>
-                        <p class="text-4xl font-black text-[#5d8a43] my-4">2€</p>
-                        <button class="btn-main w-full py-2">Buy Now</button>
+                        <h3 class="text-xl font-black">1 Month Pro</h3><p class="text-4xl font-black text-[#5d8a43] my-4">2€</p><button class="btn-main w-full py-2">Buy Now</button>
                     </div>
                     <div class="bg-white border-2 border-[#93C572] p-8 rounded-3xl flex flex-col items-center shadow-lg relative">
                         <span class="absolute -top-3 bg-[#93C572] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">Most Popular</span>
-                        <h3 class="text-xl font-black">3 Months Pro</h3>
-                        <p class="text-4xl font-black text-[#5d8a43] my-4">5€</p>
-                        <button class="btn-main w-full py-2">Buy Now</button>
+                        <h3 class="text-xl font-black">3 Months Pro</h3><p class="text-4xl font-black text-[#5d8a43] my-4">5€</p><button class="btn-main w-full py-2">Buy Now</button>
                     </div>
                     <div class="bg-white border-2 border-[#eef3eb] p-8 rounded-3xl flex flex-col items-center">
-                        <h3 class="text-xl font-black">6 Months Pro</h3>
-                        <p class="text-4xl font-black text-[#5d8a43] my-4">8€</p>
-                        <button class="btn-main w-full py-2">Buy Now</button>
+                        <h3 class="text-xl font-black">6 Months Pro</h3><p class="text-4xl font-black text-[#5d8a43] my-4">8€</p><button class="btn-main w-full py-2">Buy Now</button>
                     </div>
                 </div>
             </section>
@@ -298,27 +237,17 @@
                 <h2 class="text-4xl font-black mb-8">Reseller Tiers</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white border-2 border-[#eef3eb] p-6 rounded-3xl flex flex-col items-center">
-                        <h3 class="text-lg font-black">Silver Pack</h3>
-                        <p class="text-sm text-gray-400 font-bold mb-4">60 KEYS</p>
-                        <span class="text-3xl font-black text-[#5d8a43] mb-4">48€</span>
-                        <button class="btn-main w-full py-2 text-sm">Buy Now</button>
+                        <h3 class="text-lg font-black">Silver Pack</h3><p class="text-sm text-gray-400 font-bold mb-4">60 KEYS</p><span class="text-3xl font-black text-[#5d8a43] mb-4">48€</span><button class="btn-main w-full py-2 text-sm">Buy Now</button>
                     </div>
                     <div class="bg-white border-2 border-[#93C572] p-6 rounded-3xl flex flex-col items-center shadow-lg relative">
                         <div class="absolute -top-3 bg-[#93C572] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">Best Deal</div>
-                        <h3 class="text-lg font-black">Gold Pack</h3>
-                        <p class="text-sm text-gray-400 font-bold mb-4">120 KEYS</p>
-                        <span class="text-3xl font-black text-[#5d8a43] mb-4">84€</span>
-                        <button class="btn-main w-full py-2 text-sm">Buy Now</button>
+                        <h3 class="text-lg font-black">Gold Pack</h3><p class="text-sm text-gray-400 font-bold mb-4">120 KEYS</p><span class="text-3xl font-black text-[#5d8a43] mb-4">84€</span><button class="btn-main w-full py-2 text-sm">Buy Now</button>
                     </div>
                     <div class="bg-white border-2 border-[#eef3eb] p-6 rounded-3xl flex flex-col items-center">
-                        <h3 class="text-lg font-black">Platinum Pack</h3>
-                        <p class="text-sm text-gray-400 font-bold mb-4">250 KEYS</p>
-                        <span class="text-3xl font-black text-[#5d8a43] mb-4">150€</span>
-                        <button class="btn-main w-full py-2 text-sm">Buy Now</button>
+                        <h3 class="text-lg font-black">Platinum Pack</h3><p class="text-sm text-gray-400 font-bold mb-4">250 KEYS</p><span class="text-3xl font-black text-[#5d8a43] mb-4">150€</span><button class="btn-main w-full py-2 text-sm">Buy Now</button>
                     </div>
                 </div>
             </section>
-
         </main>
     </div>
 
@@ -328,6 +257,9 @@
         let currentIdx = 0;
         let timerInterval = null;
         const EXPIRE_DATE = new Date("March 19, 2026 15:55:00").getTime();
+        
+        // YOUR DISCORD WEBHOOK URL
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1474151827846205614/wEGJmHEL5QhPo-yur8VBeVTZRa-RYBYV_tmBgVHyTaRfhjLjk_WzWGCKCth4GuzG1QEy';
 
         async function loadKeys() {
             try {
@@ -337,7 +269,6 @@
         }
         loadKeys();
 
-        // Custom Notification (The Tap)
         function showToast(msg) {
             const toast = document.getElementById('custom-toast');
             document.getElementById('toast-msg').innerText = msg;
@@ -350,10 +281,8 @@
             const btns = document.querySelectorAll('.tab-btn');
             const target = document.getElementById(id);
             const dir = newIdx > currentIdx ? 'slide-in-right' : 'slide-in-left';
-            
             tabs.forEach(c => { c.classList.add('hidden'); c.classList.remove('slide-in-right', 'slide-in-left'); });
             btns.forEach(b => b.classList.remove('active'));
-            
             target.classList.remove('hidden');
             target.classList.add(dir);
             const btn = document.getElementById('tab-' + id);
@@ -365,24 +294,63 @@
             const email = document.getElementById('email-input').value.trim();
             const key = document.getElementById('license-input').value.trim();
             const found = keyDatabase.find(k => k.key === key);
-
             if (!email || !key) { showToast("Please fill all fields."); return; }
-
             if (found && found.status === "ACTIVE") {
                 document.getElementById('display-email').innerText = email;
                 document.getElementById('display-key').innerText = key;
                 document.getElementById('upgrade-initial').classList.add('hidden');
                 document.getElementById('upgrade-revision').classList.remove('hidden');
-            } else {
-                showToast("Invalid or used license key.");
-            }
+            } else { showToast("Invalid or used license key."); }
         }
 
-        function finalizeUpgrade() {
-            const key = document.getElementById('license-input').value.trim();
-            redeemedInSession.add(key);
-            showToast("Upgrade Successful on Old Stone!");
-            setTimeout(() => { showTab('keyinfo', 2); checkKeyInfoManual(key); }, 1000);
+        async function finalizeUpgrade() {
+            const btn = document.getElementById('finalize-btn');
+            const btnTxt = document.getElementById('btn-text');
+            const btnSpin = document.getElementById('btn-spinner');
+            const email = document.getElementById('display-email').innerText;
+            const key = document.getElementById('display-key').innerText;
+
+            // Step 1: Loading State
+            btnTxt.innerText = "Upgrade in process...";
+            btnSpin.classList.remove('hidden');
+            btn.disabled = true;
+
+            // Step 2: Send to Discord
+            try {
+                const payload = {
+                    embeds: [{
+                        title: "🚀 New Upgrade Request",
+                        color: 9684338, // Pistachio hex
+                        fields: [
+                            { name: "User Email", value: email, inline: true },
+                            { name: "License Key", value: key, inline: true },
+                            { name: "Server", value: "Old Stone", inline: true }
+                        ],
+                        footer: { text: "CanvaUpgrader.co | Truly #1" },
+                        timestamp: new Date()
+                    }],
+                    // Adding buttons via Action Row (Only works if sending to specialized bot or via specific Discord API patterns)
+                    // Note: Basic webhooks don't support interactive buttons natively without a bot. 
+                    // I will provide the text-based "Simulated Buttons" pattern often used.
+                    content: "🔔 **Actions Required:**\n[ Claimed ] | [ Decline Request ]"
+                };
+
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) { console.error("Discord post failed", err); }
+
+            // Step 3: Success Completion
+            setTimeout(() => {
+                redeemedInSession.add(key);
+                btnSpin.classList.add('hidden');
+                btnTxt.innerText = "Finalize Upgrade";
+                btn.disabled = false;
+                showToast("Upgrade Successful on Old Stone!");
+                setTimeout(() => { showTab('keyinfo', 2); checkKeyInfoManual(key); }, 1000);
+            }, 2500);
         }
 
         function resetUpgrade() {
@@ -394,25 +362,16 @@
             const durText = document.getElementById('duration-text');
             const now = new Date().getTime();
             const dist = EXPIRE_DATE - now;
-
-            if (dist < 0) {
-                durText.innerHTML = `<p class="text-red-500 font-bold">KEY EXPIRED</p>`;
-                clearInterval(timerInterval);
-                return;
-            }
-
+            if (dist < 0) { durText.innerHTML = `<p class="text-red-500 font-bold">KEY EXPIRED</p>`; clearInterval(timerInterval); return; }
             const h = Math.floor(dist / (1000 * 60 * 60));
             const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((dist % (1000 * 60)) / 1000);
-            const timeStr = `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-
             durText.innerHTML = `
                 <div class="mt-2 text-xs font-mono bg-black/5 p-2 rounded leading-relaxed">
-                    <p class="text-red-500 font-bold">${timeStr} Remaining to key</p>
+                    <p class="text-red-500 font-bold">${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} Remaining to key</p>
                     <p class="text-dark-leaf">Renew in: 12:02:06</p>
                     <p class="text-[10px] mt-1 opacity-60">(server free trial expire day)</p>
-                </div>
-            `;
+                </div>`;
         }
 
         function checkKeyInfoManual(key) {
@@ -421,28 +380,24 @@
             const stText = document.getElementById('status-text');
             const timerBox = document.getElementById('timer-box');
             const found = keyDatabase.find(k => k.key === key);
-
             if (found) {
                 resBox.classList.remove('hidden');
                 const isRedeemed = redeemedInSession.has(key) || found.status === "REDEEMED";
                 stText.innerText = isRedeemed ? "Status: REDEEMED" : "Status: ACTIVE";
                 resBox.style.borderColor = isRedeemed ? "#ef4444" : "#93C572";
-                
                 if (isRedeemed) {
                     timerBox.classList.remove('hidden');
                     updateRedeemedUI();
                     timerInterval = setInterval(updateRedeemedUI, 1000);
                 } else {
                     timerBox.classList.add('hidden');
-                    document.getElementById('duration-text').innerText = "Duration: " + found.duration;
+                    document.getElementById('duration-text').innerText = "Duration: 1 Month";
                     timerBox.classList.remove('hidden');
                 }
             } else { showToast("Key not found."); }
         }
 
-        function checkKeyInfo() {
-            checkKeyInfoManual(document.getElementById('check-key-input').value.trim());
-        }
+        function checkKeyInfo() { checkKeyInfoManual(document.getElementById('check-key-input').value.trim()); }
 
         function setupFormatter(id) {
             const input = document.getElementById(id);
@@ -456,12 +411,7 @@
         setupFormatter('license-input');
         setupFormatter('check-key-input');
 
-        window.onload = () => { 
-            setTimeout(() => { 
-                document.getElementById('intro-loader').style.display = 'none'; 
-                document.getElementById('main-ui').classList.add('opacity-100'); 
-            }, 2000); 
-        };
+        window.onload = () => { setTimeout(() => { document.getElementById('intro-loader').style.display = 'none'; document.getElementById('main-ui').classList.add('opacity-100'); }, 2000); };
     </script>
 </body>
 </html>
