@@ -22,7 +22,7 @@
             align-items: center; 
             justify-content: center;
             min-height: 100vh;
-            overflow-x: hidden; 
+            overflow: hidden; 
         }
 
         /* --- INTRO LOADER --- */
@@ -118,17 +118,6 @@
             z-index: 10;
         }
 
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            color: var(--deep-green);
-            opacity: 0.6;
-        }
-
         .styled-input {
             width: 100%;
             background: #f8faf7;
@@ -144,7 +133,6 @@
         .styled-input:focus {
             border-color: var(--pistachio);
             background: white;
-            box-shadow: 0 0 0 4px rgba(147, 197, 114, 0.1);
         }
 
         .bg-pistachio { background-color: var(--pistachio); }
@@ -170,72 +158,87 @@
     <div id="main-ui" class="opacity-0 transition-opacity duration-1000">
         
         <div id="content-upgrade" class="tab-content">
-            <div class="mb-8">
-                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Account <span class="text-pistachio">Upgrade</span></h1>
-                <p class="text-gray-400 text-sm font-medium">Enter your details to initialize the process.</p>
-            </div>
-
-            <div class="space-y-5">
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email-input" class="styled-input" placeholder="name@example.com">
+            <div id="upgrade-initial">
+                <div class="mb-8 text-center">
+                    <h1 class="text-3xl font-extrabold tracking-tight mb-2">Account <span class="text-pistachio">Upgrade</span></h1>
+                    <p class="text-gray-400 text-sm font-medium">Truly #1 Canva Upgrader</p>
                 </div>
-                <div class="input-group">
-                    <label>License Key</label>
+
+                <div class="space-y-4">
+                    <input type="email" id="email-input" class="styled-input" placeholder="Enter Email">
                     <input type="text" id="license-input" class="styled-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+                    
+                    <p id="upgrade-error" class="text-red-500 text-xs font-extrabold text-center hidden"></p>
+
+                    <button onclick="checkInitialUpgrade()" class="w-full bg-pistachio text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-pistachio/20 hover:opacity-90 transition-all">
+                        Upgrade
+                    </button>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between mt-6">
-                <span class="text-sm font-extrabold text-gray-400 uppercase tracking-widest">Revision</span>
-                <div class="flex items-center gap-3">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Server:</label>
-                    <select id="server-select" class="bg-gray-100 border-none rounded-lg px-3 py-1 text-sm font-bold outline-none cursor-pointer hover:bg-gray-200 transition">
-                        <option value="1">1</option>
-                    </select>
+            <div id="upgrade-revision" class="hidden">
+                <div class="mb-8 text-center">
+                    <h1 class="text-3xl font-extrabold tracking-tight mb-2">Revision <span class="text-pistachio">Setup</span></h1>
                 </div>
-            </div>
 
-            <button onclick="handleUpgrade()" class="w-full mt-6 bg-pistachio text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-pistachio/20 hover:scale-[1.02] active:scale-95 transition-all">
-                Upgrade Now
-            </button>
+                <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 mb-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-extrabold text-gray-400">Revision</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-gray-500 uppercase">Server:</span>
+                            <select id="server-select" class="bg-white border border-gray-200 rounded-lg px-3 py-1 font-bold outline-none cursor-pointer">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="finalizeUpgrade()" class="w-full bg-pistachio text-white font-extrabold py-4 rounded-2xl hover:opacity-90 transition">
+                    Upgrade Now
+                </button>
+                <p onclick="resetUpgrade()" class="text-center text-gray-400 text-xs font-bold mt-4 cursor-pointer hover:text-pistachio">← Change Details</p>
+            </div>
         </div>
 
         <div id="content-info" class="tab-content hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Check <span class="text-pistachio">Status</span></h1>
-                <p class="text-gray-400 text-sm font-medium">Verify your license duration and validity.</p>
+            <div class="mb-8 text-center">
+                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Key <span class="text-pistachio">Info</span></h1>
             </div>
 
-            <div class="input-group mb-6">
-                <label>Enter Key</label>
-                <input type="text" id="check-key-input" class="styled-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+            <div class="space-y-4">
+                <input type="text" id="check-key-input" class="styled-input" placeholder="Enter License Key" maxlength="19">
+                <button onclick="checkKeyInfo()" class="w-full bg-dark-leaf text-white font-extrabold py-4 rounded-2xl hover:bg-black transition">
+                    Verify Key
+                </button>
             </div>
 
-            <button onclick="checkKeyInfo()" class="w-full bg-dark-leaf text-white font-extrabold py-4 rounded-2xl mb-6 hover:bg-black transition-colors">
-                Fetch Data
-            </button>
-
-            <div id="info-result" class="hidden border-2 border-pistachio bg-pistachio/5 rounded-2xl p-6">
-                <div class="flex flex-col gap-2">
-                    <p id="info-status" class="text-sm font-extrabold uppercase tracking-widest text-red-500 hidden"></p>
-                    <p id="info-duration" class="text-lg font-bold text-dark-leaf"></p>
-                </div>
+            <div id="info-result" class="hidden mt-6 border-2 border-pistachio bg-pistachio/5 rounded-2xl p-6 text-center">
+                <p id="info-duration" class="text-xl font-extrabold text-dark-leaf">Duration: 1 Month</p>
+                <p id="info-status-red" class="text-sm font-extrabold text-red-500 uppercase mt-2 hidden">REDEEMED</p>
             </div>
+            <p id="info-error" class="text-red-500 text-xs font-extrabold text-center mt-4 hidden">Invalid License Key</p>
         </div>
 
     </div>
 
     <script>
-        // Global Keys State (Simulating DB for demo purposes)
         let keyDatabase = [];
+        let redeemedInSession = new Set();
 
+        // Load keys from provided JSON
         async function loadKeys() {
             try {
                 const response = await fetch('keys.json');
                 keyDatabase = await response.json();
             } catch (err) {
-                console.error("Failed to load keys.json", err);
+                console.error("Could not load keys.json");
             }
         }
         loadKeys();
@@ -259,60 +262,79 @@
             }
         }
 
-        async function checkKeyInfo() {
-            const keyVal = document.getElementById('check-key-input').value.trim();
+        // UPGRADE LOGIC
+        function checkInitialUpgrade() {
+            const email = document.getElementById('email-input').value;
+            const key = document.getElementById('license-input').value.trim();
+            const errorTxt = document.getElementById('upgrade-error');
+
+            if (!email || !key) {
+                showError(errorTxt, "Please fill all fields.");
+                return;
+            }
+
+            if (redeemedInSession.has(key)) {
+                showError(errorTxt, "Redeemed");
+                return;
+            }
+
+            const found = keyDatabase.find(k => k.key === key);
+            if (found) {
+                document.getElementById('upgrade-initial').classList.add('hidden');
+                document.getElementById('upgrade-revision').classList.remove('hidden');
+            } else {
+                showError(errorTxt, "Invalid license key.");
+            }
+        }
+
+        function finalizeUpgrade() {
+            const key = document.getElementById('license-input').value.trim();
+            redeemedInSession.add(key);
+            alert("Upgrade Successful!");
+            location.reload(); 
+        }
+
+        function resetUpgrade() {
+            document.getElementById('upgrade-initial').classList.remove('hidden');
+            document.getElementById('upgrade-revision').classList.add('hidden');
+        }
+
+        // KEY INFO LOGIC
+        function checkKeyInfo() {
+            const key = document.getElementById('check-key-input').value.trim();
             const resBox = document.getElementById('info-result');
-            const stText = document.getElementById('info-status');
             const durText = document.getElementById('info-duration');
+            const redText = document.getElementById('info-status-red');
+            const errTxt = document.getElementById('info-error');
 
-            if (!keyVal) return alert("Please enter a key.");
+            resBox.classList.add('hidden');
+            errTxt.classList.add('hidden');
+            redText.classList.add('hidden');
 
-            const found = keyDatabase.find(k => k.key === keyVal);
-
+            const found = keyDatabase.find(k => k.key === key);
             if (found) {
                 resBox.classList.remove('hidden');
                 durText.innerText = "Duration: 1 Month";
                 
-                // If it's redeemed, show the status as REDEEMED
-                if (found.status === "REDEEMED") {
-                    stText.innerText = "Status: REDEEMED";
-                    stText.classList.remove('hidden');
+                // Show REDEEMED only if it has been used in this session
+                if (redeemedInSession.has(key)) {
+                    redText.classList.remove('hidden');
                     resBox.style.borderColor = "#ef4444";
                 } else {
-                    // Logic: Validity is confirmed by code, but we hide "Status: Active" line
-                    stText.classList.add('hidden');
                     resBox.style.borderColor = "#93C572";
                 }
             } else {
-                alert("Invalid license key.");
-                resBox.classList.add('hidden');
+                errTxt.classList.remove('hidden');
             }
         }
 
-        async function handleUpgrade() {
-            const email = document.getElementById('email-input').value;
-            const key = document.getElementById('license-input').value;
-
-            if (!email || !key) return alert("Please fill all fields.");
-
-            const keyIndex = keyDatabase.findIndex(k => k.key === key);
-
-            if (keyIndex !== -1) {
-                if (keyDatabase[keyIndex].status === "REDEEMED") {
-                    alert("Redeemed");
-                    return;
-                }
-
-                // Simulate Upgrade Success
-                keyDatabase[keyIndex].status = "REDEEMED";
-                alert("Upgrade Successful! Key has been redeemed.");
-                
-            } else {
-                alert("Invalid license key.");
-            }
+        function showError(el, msg) {
+            el.innerText = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
         }
 
-        // Input Formatter
+        // Input Formatter (XXXX-XXXX-XXXX-XXXX)
         function setupFormatter(id) {
             const input = document.getElementById(id);
             input.addEventListener('input', (e) => {
