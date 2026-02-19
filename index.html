@@ -22,7 +22,7 @@
             align-items: center; 
             justify-content: center;
             min-height: 100vh;
-            overflow: hidden; 
+            overflow-x: hidden; 
         }
 
         /* --- INTRO LOADER --- */
@@ -117,13 +117,13 @@
         .slide-in-left { animation: slideInLeft 0.6s forwards; }
 
         @keyframes slideInRight {
-            from { transform: translateX(100px) scaleX(1.1); opacity: 0; filter: blur(10px); }
-            to { transform: translateX(0) scaleX(1); opacity: 1; filter: blur(0); }
+            from { transform: translateX(100px); opacity: 0; filter: blur(10px); }
+            to { transform: translateX(0); opacity: 1; filter: blur(0); }
         }
 
         @keyframes slideInLeft {
-            from { transform: translateX(-100px) scaleX(1.1); opacity: 0; filter: blur(10px); }
-            to { transform: translateX(0) scaleX(1); opacity: 1; filter: blur(0); }
+            from { transform: translateX(-100px); opacity: 0; filter: blur(10px); }
+            to { transform: translateX(0); opacity: 1; filter: blur(0); }
         }
 
         .btn-main { 
@@ -200,7 +200,7 @@
                     <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" class="input-field">
                     <label class="block text-sm font-bold mb-2">Email Address</label>
                     <input type="email" id="email-input" placeholder="you@example.com" class="input-field">
-                    <button onclick="processKey('license-input')" class="btn-main w-full py-4 text-lg">Upgrade Now</button>
+                    <button onclick="verifyUserKey('license-input')" class="btn-main w-full py-4 text-lg">Upgrade Now</button>
                 </div>
             </section>
 
@@ -209,7 +209,7 @@
                 <div class="bg-white border-2 border-[#eef3eb] p-10 rounded-3xl max-w-md mx-auto shadow-xl text-left">
                     <label class="block text-sm font-bold mb-2">License Key</label>
                     <input type="text" id="check-key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" class="input-field">
-                    <button onclick="processKey('check-key-input')" class="btn-main w-full py-4 text-lg">Check Status</button>
+                    <button onclick="verifyUserKey('check-key-input')" class="btn-main w-full py-4 text-lg">Check Status</button>
                     
                     <div id="key-result" class="mt-6 hidden p-4 rounded-2xl border-2">
                         <p id="status-text" class="font-bold text-lg"></p>
@@ -270,6 +270,8 @@
 
     <script>
         let currentIdx = 0;
+
+        // Navigation Function
         function showTab(id, newIdx) {
             const tabs = document.querySelectorAll('.tab-content');
             const btns = document.querySelectorAll('.tab-btn');
@@ -291,31 +293,33 @@
             currentIdx = newIdx;
         }
 
-        async function processKey(inputId) {
-            const inputVal = document.getElementById(inputId).value.trim().toUpperCase();
+        // --- KEY SYSTEM LOGIC ---
+        async function verifyUserKey(inputId) {
+            const userInput = document.getElementById(inputId).value.trim().toUpperCase();
             const resBox = document.getElementById('key-result');
             const stText = document.getElementById('status-text');
             const durText = document.getElementById('duration-text');
 
-            if (!inputVal) { alert("Please enter a key."); return; }
+            if (!userInput) { alert("Please enter a key."); return; }
 
             try {
-                // Fetch the keys from your GitHub repo
-                const response = await fetch('keys.json?t=' + Date.now());
+                // Fetch keys from your GitHub repo manually
+                const response = await fetch('keys.json?nocache=' + new Date().getTime());
                 const keys = await response.json();
                 
-                const foundKey = keys.find(k => k.key === inputVal);
+                const found = keys.find(k => k.key === userInput);
 
                 if (resBox) resBox.classList.remove('hidden');
 
-                if (foundKey) {
+                if (found) {
                     if (stText) {
-                        stText.innerText = "Status: ACTIVE";
-                        stText.style.color = "#5d8a43";
+                        stText.innerText = "Status: " + found.status;
+                        stText.style.color = found.status === "ACTIVE" ? "#5d8a43" : "#ef4444";
                     }
-                    if (durText) durText.innerText = "Duration: " + foundKey.duration;
+                    if (durText) durText.innerText = "Duration: " + found.duration;
                     if (resBox) resBox.style.borderColor = "#93C572";
-                    alert("Valid Key! Access granted for " + foundKey.duration);
+                    
+                    alert("Key Validated! " + found.duration + " plan detected.");
                 } else {
                     if (stText) {
                         stText.innerText = "Status: INVALID";
@@ -327,10 +331,11 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert("Database connection error. Make sure you generated a key in GitHub Actions first.");
+                alert("Error: Make sure 'keys.json' exists in your repo.");
             }
         }
 
+        // Input Formatter (XXXX-XXXX-XXXX-XXXX)
         function setupFormatter(id) {
             const input = document.getElementById(id);
             if(!input) return;
@@ -343,9 +348,11 @@
         setupFormatter('license-input');
         setupFormatter('check-key-input');
 
+        // Page Loader
         window.onload = () => { 
             setTimeout(() => { 
                 document.getElementById('intro-loader').style.display = 'none'; 
+                document.getElementById('main-ui').classList.remove('opacity-0');
                 document.getElementById('main-ui').classList.add('opacity-100'); 
             }, 2000); 
         };
