@@ -73,7 +73,7 @@
             100% { clip-path: inset(0 0 0 0%); }
         }
 
-        /* --- CUSTOM NOTIFICATION (THE TAP) --- */
+        /* --- CUSTOM NOTIFICATION --- */
         #custom-toast {
             position: fixed;
             top: -100px;
@@ -91,9 +91,9 @@
             gap: 12px;
             min-width: 300px;
         }
-
         #custom-toast.show { top: 30px; }
 
+        /* --- NAVIGATION --- */
         .nav-container { position: fixed; top: 2rem; z-index: 50; }
         .nav-pill { background: #eef3eb; border: 1px solid white; padding: 6px; border-radius: 100px; display: flex; gap: 4px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); }
         .tab-btn { padding: 10px 22px; border-radius: 100px; font-size: 14px; font-weight: 700; transition: 0.3s; color: #777; cursor: pointer; }
@@ -116,8 +116,9 @@
         .btn-main { background: var(--pistachio); color: white; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 800; transition: 0.3s; cursor: pointer; }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(147, 197, 114, 0.3); }
 
-        .input-field { width: 100%; padding: 14px 18px; border: 2px solid #eef3eb; border-radius: 15px; margin-bottom: 1.2rem; font-family: 'JetBrains Mono', monospace; outline: none; }
+        .input-field { width: 100%; padding: 14px 18px; border: 2px solid #eef3eb; border-radius: 15px; margin-bottom: 1.2rem; font-family: 'JetBrains Mono', monospace; outline: none; transition: 0.3s; }
         .input-field:focus { border-color: var(--pistachio); }
+
         .hidden { display: none !important; }
         .content-width { max-width: 850px; margin: 0 auto; }
 
@@ -207,9 +208,13 @@
                     <label class="block text-sm font-bold mb-2">License Key</label>
                     <input type="text" id="check-key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" class="input-field">
                     <button onclick="checkKeyInfo()" class="btn-main w-full py-4 text-lg">Check Status</button>
+                    
                     <div id="key-result" class="mt-6 hidden p-6 rounded-2xl border-2 bg-pistachio/5 text-center">
                         <p id="status-text" class="font-bold text-lg text-dark-leaf"></p>
-                        <div id="timer-box" class="hidden"><div id="duration-text" class="mt-1"></div></div>
+                        <p id="duration-text" class="text-sm text-gray-600 mt-1"></p>
+                        <div id="timer-box" class="hidden">
+                            <div id="dynamic-countdown" class="mt-2 text-xs font-mono bg-black/5 p-2 rounded leading-relaxed"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -250,11 +255,10 @@
 
     <script>
         let keyDatabase = [];
-        let redeemedInSession = new Set();
+        let redeemedInSession = new Map(); // Store as key -> email
         let currentIdx = 0;
         let timerInterval = null;
-        
-        // YOUR DISCORD WEBHOOK URL
+
         const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1474151827846205614/wEGJmHEL5QhPo-yur8VBeVTZRa-RYBYV_tmBgVHyTaRfhjLjk_WzWGCKCth4GuzG1QEy';
 
         async function loadKeys() {
@@ -289,9 +293,10 @@
         function checkInitialUpgrade() {
             const email = document.getElementById('email-input').value.trim();
             const key = document.getElementById('license-input').value.trim();
-            const found = keyDatabase.find(k => k.key === key);
             if (!email || !key) { showToast("Please fill all fields."); return; }
-            if (found && found.status === "ACTIVE") {
+            
+            const found = keyDatabase.find(k => k.key === key);
+            if (found && found.status === "ACTIVE" && !redeemedInSession.has(key)) {
                 document.getElementById('display-email').innerText = email;
                 document.getElementById('display-key').innerText = key;
                 document.getElementById('upgrade-initial').classList.add('hidden');
@@ -312,16 +317,11 @@
 
             try {
                 const content = `# :rocket: New Upgrade Request\n\n# User email\n\`\`\`\n${email}\n\`\`\`\n# License Key\n\`\`\`\n${key}\n\`\`\`\n# Server\n\`\`\`\nOld Stone\n\`\`\`\n\n🔔 **Actions Required:**\n[ Claimed ] | [ Decline Request ]`;
-                
-                await fetch(DISCORD_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: content })
-                });
-            } catch (err) { console.error("Discord post failed", err); }
+                await fetch(DISCORD_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: content }) });
+            } catch (err) { console.error("Discord error", err); }
 
             setTimeout(() => {
-                redeemedInSession.add(key);
+                redeemedInSession.set(key, { email: email, date: new Date().getTime() });
                 btnSpin.classList.add('hidden');
                 btnTxt.innerText = "Finalize Upgrade";
                 btn.disabled = false;
@@ -335,51 +335,65 @@
             document.getElementById('upgrade-revision').classList.add('hidden');
         }
 
-        function updateRedeemedUI() {
-            const durText = document.getElementById('duration-text');
-            const now = new Date();
+        function runCountdown(startTime) {
+            const expiry = startTime + (30 * 24 * 60 * 60 * 1000); // 30 days
+            const timerBox = document.getElementById('dynamic-countdown');
             
-            // Generate a fake "1 Month" expiry by adding 30 days to now for visual purposes
-            // This prevents massive hour numbers
-            const target = new Date();
-            target.setDate(target.getDate() + 30);
-            
-            const dist = target.getTime() - now.getTime();
-            
-            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((dist % (1000 * 60)) / 1000);
+            function update() {
+                const now = new Date().getTime();
+                const diff = expiry - now;
+                
+                if (diff <= 0) { timerBox.innerHTML = `<p class="text-red-500 font-bold">KEY EXPIRED</p>`; clearInterval(timerInterval); return; }
+                
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-            durText.innerHTML = `
-                <div class="mt-2 text-xs font-mono bg-black/5 p-2 rounded leading-relaxed">
+                timerBox.innerHTML = `
                     <p class="text-red-500 font-bold">${d}d ${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} Remaining to key</p>
                     <p class="text-dark-leaf">Renew in: 12:02:06</p>
                     <p class="text-[10px] mt-1 opacity-60">(server free trial expire day)</p>
-                </div>`;
+                `;
+            }
+            update();
+            timerInterval = setInterval(update, 1000);
         }
 
         function checkKeyInfoManual(key) {
             if(timerInterval) clearInterval(timerInterval);
             const resBox = document.getElementById('key-result');
             const stText = document.getElementById('status-text');
-            const timerBox = document.getElementById('timer-box');
+            const durText = document.getElementById('duration-text');
+            const tBox = document.getElementById('timer-box');
+            
             const found = keyDatabase.find(k => k.key === key);
-            if (found) {
+            const sessionData = redeemedInSession.get(key);
+
+            if (found || sessionData) {
                 resBox.classList.remove('hidden');
-                const isRedeemed = redeemedInSession.has(key) || found.status === "REDEEMED";
-                stText.innerText = isRedeemed ? "Status: REDEEMED" : "Status: ACTIVE";
-                resBox.style.borderColor = isRedeemed ? "#ef4444" : "#93C572";
+                const isRedeemed = !!sessionData || found?.status === "REDEEMED";
+                
                 if (isRedeemed) {
-                    timerBox.classList.remove('hidden');
-                    updateRedeemedUI();
-                    timerInterval = setInterval(updateRedeemedUI, 1000);
+                    const mail = sessionData ? sessionData.email : (found.redeem_email || "N/A");
+                    stText.innerText = "Status: Redeem key  redeem email : " + mail;
+                    durText.innerText = "Duration: 30:12:24"; // Static requirement per prompt
+                    resBox.style.borderColor = "#ef4444";
+                    tBox.classList.remove('hidden');
+                    runCountdown(sessionData ? sessionData.date : new Date().getTime());
                 } else {
-                    timerBox.classList.add('hidden');
-                    document.getElementById('duration-text').innerText = "Duration: 1 Month";
-                    timerBox.classList.remove('hidden');
+                    stText.innerText = "Status: VALID KEY";
+                    durText.innerText = "Duration: Not redeemed";
+                    resBox.style.borderColor = "#93C572";
+                    tBox.classList.add('hidden');
                 }
-            } else { showToast("Key not found."); }
+            } else {
+                resBox.classList.remove('hidden');
+                stText.innerText = "Status: INVALID KEY";
+                durText.innerText = "";
+                resBox.style.borderColor = "#ef4444";
+                tBox.classList.add('hidden');
+            }
         }
 
         function checkKeyInfo() { checkKeyInfoManual(document.getElementById('check-key-input').value.trim()); }
@@ -400,4 +414,3 @@
     </script>
 </body>
 </html>
-
