@@ -217,10 +217,7 @@
                         <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 mb-6">
                             <div class="flex items-center justify-between">
                                 <span class="text-lg font-extrabold text-gray-400">Server</span>
-                                <select id="server-select" class="bg-white border border-gray-200 rounded-lg px-3 py-1 font-bold outline-none cursor-pointer">
-                                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                                    <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-                                </select>
+                                <span class="font-bold text-pistachio">Old Stone</span>
                             </div>
                         </div>
                         <button onclick="finalizeUpgrade()" class="btn-main w-full py-4 text-lg">Finalize Upgrade</button>
@@ -238,7 +235,9 @@
                     
                     <div id="key-result" class="mt-6 hidden p-6 rounded-2xl border-2 bg-pistachio/5 text-center">
                         <p id="status-text" class="font-bold text-lg text-dark-leaf"></p>
-                        <p id="duration-text" class="text-sm text-gray-600 mt-1"></p>
+                        <div id="duration-container" class="mt-1">
+                            <p id="duration-text" class="text-sm text-gray-600"></p>
+                        </div>
                         <p id="info-status-red" class="text-sm font-extrabold text-red-500 uppercase mt-2 hidden">REDEEMED</p>
                     </div>
                     <p id="info-error" class="text-red-500 text-xs font-extrabold text-center mt-4 hidden">Invalid License Key</p>
@@ -299,8 +298,11 @@
         let keyDatabase = [];
         let redeemedInSession = new Set();
         let currentIdx = 0;
+        let timerInterval = null;
 
-        // Ability: Load Real Keys
+        // Target Date: March 19, 2026 3:55 PM
+        const EXPIRE_DATE = new Date("March 19, 2026 15:55:00").getTime();
+
         async function loadKeys() {
             try {
                 const response = await fetch('keys.json');
@@ -330,7 +332,6 @@
             currentIdx = newIdx;
         }
 
-        // Ability: Two-Step Upgrade Workflow
         function checkInitialUpgrade() {
             const email = document.getElementById('email-input').value;
             const key = document.getElementById('license-input').value.trim();
@@ -338,11 +339,6 @@
 
             if (!email || !key) {
                 showError(errorTxt, "Please fill all fields.");
-                return;
-            }
-
-            if (redeemedInSession.has(key)) {
-                showError(errorTxt, "This key has already been used this session.");
                 return;
             }
 
@@ -358,8 +354,8 @@
         function finalizeUpgrade() {
             const key = document.getElementById('license-input').value.trim();
             redeemedInSession.add(key);
-            alert("Upgrade Successful!");
-            location.reload(); 
+            alert("Upgrade Successful on Server: Old Stone!");
+            showTab('keyinfo', 2);
         }
 
         function resetUpgrade() {
@@ -367,8 +363,35 @@
             document.getElementById('upgrade-revision').classList.add('hidden');
         }
 
-        // Ability: Detailed Key Info with Session Status
+        function updateRedeemedUI() {
+            const durText = document.getElementById('duration-text');
+            const now = new Date().getTime();
+            const distance = EXPIRE_DATE - now;
+
+            if (distance < 0) {
+                durText.innerHTML = `<p class="text-red-500 font-bold">KEY EXPIRED</p>`;
+                clearInterval(timerInterval);
+                return;
+            }
+
+            const hours = Math.floor(distance / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            const timeStr = `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            durText.innerHTML = `
+                <div class="mt-2 text-xs font-mono bg-black/5 p-2 rounded leading-relaxed">
+                    <p class="text-red-500 font-bold">${timeStr} Remaining to key</p>
+                    <p class="text-dark-leaf">Renew in: 12:02:06</p>
+                    <p class="text-[10px] mt-1 opacity-60">(server free trial expire day)</p>
+                </div>
+            `;
+        }
+
         function checkKeyInfo() {
+            if(timerInterval) clearInterval(timerInterval);
+            
             const key = document.getElementById('check-key-input').value.trim();
             const resBox = document.getElementById('key-result');
             const stText = document.getElementById('status-text');
@@ -383,13 +406,18 @@
             const found = keyDatabase.find(k => k.key === key);
             if (found) {
                 resBox.classList.remove('hidden');
-                stText.innerText = "Status: " + found.status;
-                durText.innerText = "Duration: " + found.duration;
                 
                 if (redeemedInSession.has(key) || found.status === "REDEEMED") {
+                    stText.innerText = "Status: REDEEMED";
                     redText.classList.remove('hidden');
                     resBox.style.borderColor = "#ef4444";
+                    
+                    // Start the live timer
+                    updateRedeemedUI();
+                    timerInterval = setInterval(updateRedeemedUI, 1000);
                 } else {
+                    stText.innerText = "Status: " + found.status;
+                    durText.innerText = "Duration: " + found.duration;
                     resBox.style.borderColor = "#93C572";
                 }
             } else {
